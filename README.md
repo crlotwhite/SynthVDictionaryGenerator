@@ -11,6 +11,12 @@ This is example database.
 ## How to run?
 To run you have to get dictionary files, which is contained in Release.
 
+1. prepare venv
+2. update submodule 
+```shell
+git submodule update --init --recursive
+```
+3. run main.py
 
 
 
