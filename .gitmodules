@@ -1,0 +1,3 @@
+[submodule "synthv-dictionaries"]
+	path = synthv-dictionaries
+	url = https://github.com/Slidingwall/synthv-dictionaries

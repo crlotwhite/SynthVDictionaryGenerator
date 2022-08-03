@@ -17,9 +17,9 @@ def j2d(file_name):
         return result
 
 
-K2J = j2d('japanese-romaji/Korean.json')
-K2E = j2d('english-arpabet/Korean.json')
-K2M = j2d('mandarin-xsampa/Korean.json')
+K2J = j2d('synthv-dictionaries/japanese-romaji/Korean.json')
+K2E = j2d('synthv-dictionaries/english-arpabet/Korean.json')
+K2M = j2d('synthv-dictionaries/mandarin-xsampa/Korean.json')
 
 '''
 발음 기호가 없는 것은 생략
