@@ -1,4 +1,5 @@
 import csv
+import json
 
 '''
 1. json 읽기
@@ -7,8 +8,6 @@ import csv
 
 
 def j2d(file_name):
-    import json
-
     result = {}
     with open(file_name, encoding='utf-8-sig') as file:
         data = json.load(file)['data']
@@ -126,7 +125,32 @@ for page_number in range(1, 14):
 
     print(f'page {page_number} is complete...')
 
+print('== Start To Add Verbs ==')
+
+# 동사 사전 추가
+with open('verbs.csv', encoding='utf-8-sig') as f:
+    rdr = csv.reader(f)
+    for row in rdr:
+        result.update({
+            row[0]: [row[0], '']
+        })
+
 print('== Created Dict Successfully ==')
+
+# 예외 1 처리
+del result['']
+
+# 예외 단어 수정
+result['등가계'] = ['등까계', '등까게']
+result['몰아닥쳐'] = ['모라닥처', '']
+result['외떡잎만'] = ['외떵님만', '웨떵님만']
+
+# 임시 추가
+result['눈부시게'] = ['눈부시게', '']
+
+# 사전 오류, 제보한 상태
+del result['진선진미니하니']
+result['진선진미하니'] = ['진선진미하니', '']
 
 # 사전 검증
 for k, v in result.items():
@@ -160,17 +184,7 @@ for k, v in result.items():
             print(f'{k}의 발음 기호가 올바르지 않습니다. {v}')
             continue
 
-# 예외 1 처리
-del result['']
-
-# 예외 단어 수정
-result['등가계'] = ['등까계', '등까게']
-result['몰아닥쳐'] = ['모라닥처', '']
-result['외떡잎만'] = ['외떵님만', '웨떵님만']
-
-# 사전 오류, 제보한 상태
-del result['진선진미니하니']
-result['진선진미하니'] = ['진선진미하니', '']
+print('== Complete Validation Dict Successfully ==')
 
 err = []
 
@@ -222,7 +236,7 @@ def k2jem(words):
 3. 합치기
 4. 데이터베이스에 추가하기
 '''
-with open('output.csv', 'w', newline='') as f:
+with open('output.csv', 'w', newline='', encoding='utf-8') as f:
     wrt = csv.writer(f)
     for word, pron in result.items():
         j, e, m = k2jem(pron)
@@ -240,7 +254,76 @@ with open('output.csv', 'w', newline='') as f:
             ]
         )
 
+
+    _k2j_sorted = sorted(K2J.items())
+    _k2e_sorted = sorted(K2E.items())
+    _k2m_sorted = sorted(K2M.items())
+
+    # 문자 추가
+    for j, e, m in zip(_k2j_sorted, _k2e_sorted, _k2m_sorted):
+        if j[0] == e[0] == m[0]:
+            wrt.writerow(
+                [
+                    j[0],
+                    j[0],
+                    '',
+                    j[1],
+                    '',
+                    e[1],
+                    '',
+                    m[1],
+                    '',
+                ]
+            )
+        else:
+            print(f'{j[0]}가 순서와 틀림')
+
 print('== end of create result ==')
+
+
+# json 생성을 위한 dict 생성
+print('== Start Generate Dict ==')
+
+jpn_dict = {"data": []}
+eng_dict = {"data": []}
+man_dict = {"data": []}
+
+with open('output.csv', 'r', encoding='utf-8') as f:
+    rdr = csv.reader(f)
+
+    for row in rdr:
+        jpn_dict["data"].append({
+            "w": row[0],
+            "p": row[3]
+        })
+
+        eng_dict["data"].append({
+            "w": row[0],
+            "p": row[5]
+        })
+
+        man_dict["data"].append({
+            "w": row[0],
+            "p": row[7]
+        })
+
+print('== End Generate Dict ==')
+
+# json dump
+print('== Start Create Json ==')
+
+with open('k2j.json', 'w') as f:
+    json.dump(jpn_dict, f, indent=4, ensure_ascii=False)
+    print(json.dumps(jpn_dict, indent=4, ensure_ascii=False))
+
+with open('k2e.json', 'w') as f:
+    json.dump(eng_dict, f, indent=4, ensure_ascii=False)
+
+with open('k2m.json', 'w') as f:
+    json.dump(man_dict, f, indent=4, ensure_ascii=False)
+
+print('== End Create Json ==')
+
 
 err = list(set(err))
 with open('error.csv', 'w', newline='') as f:
